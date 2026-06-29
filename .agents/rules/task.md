@@ -7,7 +7,13 @@ Nama Produk: MOTRACK CAFE SOLUTION
 
 Tujuan: Panduan pengerjaan bertahap (vibe coding checklist) untuk mengimplementasikan fitur pembaharuan sistem secara sistematis.
 
+
 🍱 TAHAP 1: IMPLEMENTASI CMS & KATALOG BERLAPIS
+[x] Task 0.1: Pembuatan Landing Page & Profil Kafe (Smart)
+    - Membuat desain.md
+    - Mengintegrasikan Google Fonts & variabel warna Tailwind v4
+    - Membuat 7 komponen section modular
+    - Mengupdate welcome.tsx
 [ ] Task 1.1: Pembuatan Fitur CRUD Kategori Dinamis (categories)
 
 Bangun antarmuka form admin untuk memasukkan nama kategori beserta seleksi tipe (makanan / minuman).
