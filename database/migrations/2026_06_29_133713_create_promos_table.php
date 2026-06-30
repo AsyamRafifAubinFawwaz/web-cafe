@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('promos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('menu_id')->constrained('menus')->restrictOnDelete()->comment("Terhubung langsung ke menu yang dipromokan");
+            $table->foreignId('menu_id')->comment("Terhubung langsung ke menu yang dipromokan")->constrained('menus')->restrictOnDelete();
             $table->string('title')->comment("Judul promo, e.g., Promo Special Americano");
             $table->string('image')->nullable()->comment("Poster promo diskon");
             $table->string('discount_type')->comment("'percentage' (persen) atau 'nominal' (potongan rupiah)");
