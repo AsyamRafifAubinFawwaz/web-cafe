@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable()->comment("Deskripsi singkat menu");
             $table->integer('price')->comment("Harga normal menu, e.g., 10000");
             $table->string('image')->nullable()->comment("URL/Path gambar menu");
+            $table->foreignId('category_id')->constrained('categories');
             $table->timestamps();
             $table->integer('created_by')->default(0);
             $table->integer('updated_by')->nullable();
