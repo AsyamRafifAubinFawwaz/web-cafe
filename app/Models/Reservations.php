@@ -56,5 +56,14 @@ class Reservations extends Model
     {
         return $this->belongsTo(ReservationPackages::class, 'package_id');
     }
-    
+
+    public function reservationMembers()
+    {
+        return $this->hasMany(ReservationMembers::class, 'reservation_id');
+    }
+
+    public function invoice()
+    {
+        return $this->hasOne(Invoices::class, 'reservation_id');
+    }
 }

@@ -13,17 +13,24 @@ class MenusController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Menus::query();
+        $query = Menus::with('category');
 
         if ($request->has('search') && $request->search != '') {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
+        if ($request->has('type') && in_array($request->type, ['makanan', 'minuman'])) {
+            $query->whereHas('category', function ($q) use ($request) {
+                $q->where('type', $request->type);
+            });
+        }
+
         $menus = $query->orderBy('name', 'asc')->paginate(10)->withQueryString();
 
         return Inertia::render('admin/menus/index', [
-            'menus'   => $menus,
-            'filters' => $request->only(['search', 'type'])
+            'menus'      => $menus,
+            'categories' => Categories::orderBy('name', 'asc')->get(),
+            'filters'    => $request->only(['search', 'type'])
         ]);
     }
 

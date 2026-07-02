@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+
 #[Fillable([
     'reservation_id',
     'invoice_number',
@@ -22,7 +23,7 @@ class Invoices extends Model
     use SoftDeletes;
 
     protected $table = 'invoices';
-    
+
     protected static function boot()
     {
         parent::boot();
@@ -47,11 +48,8 @@ class Invoices extends Model
         });
     }
 
-    
     public function reservation()
     {
         return $this->belongsTo(Reservations::class, 'reservation_id');
     }
-
-  
 }

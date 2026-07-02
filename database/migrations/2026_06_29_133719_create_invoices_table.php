@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('reservation_id')->constrained('reservations')->restrictOnDelete();
             $table->string('invoice_number')->unique();
-            $table->enum('payment_status', ['unpaid', 'paid'])->default('unpaid');
-            $table->enum('payment_method', ['transfer', 'cash', 'qris'])->nullable();
+            $table->enum('payment_status', ['unpaid', 'paid','cancelled'])->comment("'unpaid', 'paid', 'cancelled'");
+            $table->enum('payment_method', ['transfer', 'cash', 'qris'])->comment("'transfer', 'cash', 'qris'")->nullable();
             $table->timestamp('issued_at')->nullable();
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();

@@ -45,4 +45,14 @@ class ReservationMembers extends Model
             }
         });
     }
+
+    public function reservation()
+    {
+        return $this->belongsTo(Reservations::class, 'reservation_id');
+    }
+
+    public function reservationItems()
+    {
+        return $this->hasMany(ReservationItems::class, 'reservation_member_id');
+    }
 }
