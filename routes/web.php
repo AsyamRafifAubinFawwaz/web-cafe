@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\ReservationItemsController;
 use App\Http\Controllers\Admin\ReservationMembersController;
 use App\Http\Controllers\Admin\ReservationPackagesController;
 use App\Http\Controllers\Admin\ReservationsController;
+use App\Http\Controllers\Admin\TableOrdersController;
+use App\Http\Controllers\Admin\TableOrderItemsController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -23,6 +25,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('reservations', ReservationsController::class)->names('reservations');
         Route::resource('reservation-members', ReservationMembersController::class)->names('reservation-members');
         Route::resource('reservation-items', ReservationItemsController::class)->names('reservation-items');
+        Route::resource('table-orders', TableOrdersController::class)->names('table-orders');
+        Route::resource('table-order-items', TableOrderItemsController::class)->names('table-order-items');
     });
 });
 

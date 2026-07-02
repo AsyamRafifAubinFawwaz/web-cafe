@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('table_orders', function (Blueprint $table) {
             $table->id();
             $table->string('table_number');
-            $table->string('status')->comment("'pending', 'cooking', 'served', 'paid'");
-            $table->string('payment_method')->nullable()->comment("'pay_at_cashier', 'online_payment'");
+            $table->enum('status', ['pending', 'cooking', 'served', 'paid'])->default('pending');
+            $table->enum('payment_method', ['pay_at_cashier', 'online_payment'])->default('pay_at_cashier');
             $table->integer('total_amount');
             $table->timestamps();
             $table->integer('created_by')->default(0);
