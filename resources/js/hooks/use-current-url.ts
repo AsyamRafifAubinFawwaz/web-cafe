@@ -40,20 +40,34 @@ export function useCurrentUrl(): UseCurrentUrlReturn {
         currentUrl?: string,
         startsWith: boolean = false,
     ) => {
-        const urlToCompare = currentUrl ?? currentUrlPath;
+        const rawCurrentUrl = currentUrl ?? page.url;
         const urlString = toUrl(urlToCheck);
 
-        const comparePath = (path: string): boolean =>
-            startsWith ? urlToCompare.startsWith(path) : path === urlToCompare;
-
-        if (!urlString.startsWith('http')) {
-            return comparePath(urlString);
-        }
-
         try {
-            const absoluteUrl = new URL(urlString);
+            const baseObj = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+            const checkUrlObj = new URL(urlString.startsWith('http') ? urlString : baseObj + urlString);
+            const currentUrlObj = new URL(rawCurrentUrl.startsWith('http') ? rawCurrentUrl : baseObj + rawCurrentUrl);
 
-            return comparePath(absoluteUrl.pathname);
+            // 1. Compare pathnames
+            const pathMatches = startsWith 
+                ? currentUrlObj.pathname.startsWith(checkUrlObj.pathname)
+                : currentUrlObj.pathname === checkUrlObj.pathname;
+
+            if (!pathMatches) {
+                return false;
+            }
+
+            // 2. If urlToCheck has query parameters, check if they match the current URL
+            const checkSearchParams = checkUrlObj.searchParams;
+            if (checkSearchParams.size > 0) {
+                for (const [key, value] of checkSearchParams.entries()) {
+                    if (currentUrlObj.searchParams.get(key) !== value) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         } catch {
             return false;
         }

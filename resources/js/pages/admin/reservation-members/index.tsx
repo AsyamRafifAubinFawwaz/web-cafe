@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { Head, useForm, usePage, router } from '@inertiajs/react';
-import { Plus, Search, Edit2, Trash2, Folder, Coffee, Utensils, X, Loader2, ArrowRight } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Users, X, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -32,13 +31,41 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 
-import type { Category, PaginatedCollection } from '@/types';
+interface Reservation {
+    id: number;
+    name: string;
+    phone: string;
+}
+
+interface ReservationMember {
+    id: number;
+    reservation_id: number;
+    name: string;
+    reservation?: Reservation;
+}
+
+interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+}
+
+interface PaginatedMembers {
+    data: ReservationMember[];
+    current_page: number;
+    last_page: number;
+    prev_page_url: string | null;
+    next_page_url: string | null;
+    links: PaginationLink[];
+    total: number;
+    per_page: number;
+}
 
 interface PageProps {
-    categories: PaginatedCollection<Category>;
+    reservationMembers: PaginatedMembers;
+    reservations: Reservation[];
     filters: {
         search?: string;
-        type?: string;
     };
     flash: {
         success?: string;
@@ -46,20 +73,15 @@ interface PageProps {
     };
 }
 
-export default function CategoriesIndex() {
-    const { categories, filters, flash } = usePage<any>().props as PageProps;
-    
-    // Search & filter states
+export default function ReservationMembersIndex() {
+    const { reservationMembers, reservations, filters, flash } = usePage<any>().props as PageProps;
+
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
-    const [filterType, setFilterType] = useState<string>(filters.type || 'all');
-    
-    // Modal states
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+    const [selectedMember, setSelectedMember] = useState<ReservationMember | null>(null);
 
-    // Form hooks
     const {
         data: addData,
         setData: setAddData,
@@ -69,7 +91,7 @@ export default function CategoriesIndex() {
         reset: resetAdd,
     } = useForm({
         name: '',
-        type: 'makanan' as 'makanan' | 'minuman',
+        reservation_id: '',
     });
 
     const {
@@ -81,7 +103,7 @@ export default function CategoriesIndex() {
         reset: resetEdit,
     } = useForm({
         name: '',
-        type: 'makanan' as 'makanan' | 'minuman',
+        reservation_id: '',
     });
 
     useEffect(() => {
@@ -93,141 +115,121 @@ export default function CategoriesIndex() {
         }
     }, [flash]);
 
-    // Keep state in sync with filter props (e.g. when changing types via sidebar clicks)
-    useEffect(() => {
-        setSearchTerm(filters.search || '');
-        setFilterType(filters.type || 'all');
-    }, [filters.search, filters.type]);
-
-    // Handle filtering & searching
-    const handleSearchAndFilter = (searchVal = searchTerm, typeVal = filterType) => {
+    const handleSearchAndFilter = (searchVal = searchTerm) => {
         router.get(
-            '/admin/categories',
-            {
-                search: searchVal || undefined,
-                type: typeVal !== 'all' ? typeVal : undefined,
-            },
+            '/admin/reservation-members',
+            { search: searchVal || undefined },
             { preserveState: true, replace: true }
         );
     };
 
-    // Trigger search on submit
     const handleSearchSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        handleSearchAndFilter(searchTerm, filterType);
+        handleSearchAndFilter(searchTerm);
     };
 
-    // Reset search
     const handleResetSearch = () => {
         setSearchTerm('');
-        handleSearchAndFilter('', filterType);
+        handleSearchAndFilter('');
     };
 
-    // Trigger filter update on select change
-    const handleTypeFilterChange = (val: string) => {
-        setFilterType(val);
-        handleSearchAndFilter(searchTerm, val);
-    };
-
-    // Open add modal
     const handleOpenAdd = () => {
         resetAdd();
         setIsAddOpen(true);
     };
 
-    // Submit add category
     const handleAddSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        postAdd('/admin/categories', {
+        postAdd('/admin/reservation-members', {
             onSuccess: () => {
                 setIsAddOpen(false);
                 resetAdd();
             },
+            onError: (errs) => {
+                if (errs.error) {
+                    toast.error(errs.error);
+                }
+            }
         });
     };
 
-    // Open edit modal
-    const handleOpenEdit = (category: Category) => {
-        setSelectedCategory(category);
-        editData.name = category.name;
-        editData.type = category.type;
+    const handleOpenEdit = (member: ReservationMember) => {
+        setSelectedMember(member);
+        setEditData({
+            name: member.name,
+            reservation_id: String(member.reservation_id),
+        });
         setIsEditOpen(true);
     };
 
-    // Submit edit category
     const handleEditSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!selectedCategory) return;
-        
-        putEdit(`/admin/categories/${selectedCategory.id}`, {
+        if (!selectedMember) return;
+
+        putEdit(`/admin/reservation-members/${selectedMember.id}`, {
             onSuccess: () => {
                 setIsEditOpen(false);
-                setSelectedCategory(null);
+                resetEdit();
             },
+            onError: (errs) => {
+                if (errs.error) {
+                    toast.error(errs.error);
+                }
+            }
         });
     };
 
-    // Open delete modal
-    const handleOpenDelete = (category: Category) => {
-        setSelectedCategory(category);
+    const handleOpenDelete = (member: ReservationMember) => {
+        setSelectedMember(member);
         setIsDeleteOpen(true);
     };
 
-    // Submit delete category
     const handleDeleteSubmit = () => {
-        if (!selectedCategory) return;
+        if (!selectedMember) return;
 
-        router.delete(`/admin/categories/${selectedCategory.id}`, {
+        router.delete(`/admin/reservation-members/${selectedMember.id}`, {
             onSuccess: () => {
                 setIsDeleteOpen(false);
-                setSelectedCategory(null);
+                setSelectedMember(null);
             },
             onError: (errs) => {
                 setIsDeleteOpen(false);
                 if (errs.error) {
                     toast.error(errs.error);
                 } else {
-                    toast.error('Gagal menghapus kategori.');
+                    toast.error('Gagal menghapus anggota.');
                 }
             }
         });
     };
 
-    const formatRupiah = (num: number) => {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            maximumFractionDigits: 0
-        }).format(num);
-    };
-
     return (
         <>
-            <Head title="Manajemen Kategori" />
+            <Head title="Manajemen Anggota Reservasi" />
 
             <div className="flex flex-1 flex-col gap-6 p-6 max-w-7xl mx-auto w-full">
                 {/* Header Section */}
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Kategori Menu</h1>
+                        <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Anggota Rombongan</h1>
                         <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                            Kelola kategori makanan dan minuman untuk menu kafe.
+                            Kelola data nama-nama anggota rombongan yang tergabung dalam tiap sesi reservasi.
                         </p>
                     </div>
                     <Button 
                         onClick={handleOpenAdd}
-                        className="bg-cafe-primary hover:bg-cafe-primary/90 text-white shadow-sm transition-colors flex items-center gap-2"
+                        className="bg-neutral-950 hover:bg-neutral-800 text-neutral-50 dark:bg-neutral-50 dark:hover:bg-neutral-200 dark:text-neutral-950 shadow-sm transition-colors flex items-center gap-2"
                     >
                         <Plus className="size-4" />
-                        Tambah Kategori
+                        Tambah Anggota
                     </Button>
                 </div>
 
-                {/* Search & Filter Bar */}
+                {/* Search Bar */}
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center justify-between bg-white dark:bg-neutral-900/50 p-4 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs">
                     <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-md w-full">
                         <Input
-                            placeholder="Cari kategori..."
+                            placeholder="Cari nama anggota..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="pl-9 pr-8 h-9 dark:bg-neutral-950/40"
@@ -243,99 +245,85 @@ export default function CategoriesIndex() {
                             </button>
                         )}
                     </form>
-
-                    <div className="flex items-center gap-2">
-                        <Select value={filterType} onValueChange={handleTypeFilterChange}>
-                            <SelectTrigger className="w-[150px] h-9 dark:bg-neutral-950/40">
-                                <SelectValue placeholder="Semua Tipe" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Semua Tipe</SelectItem>
-                                <SelectItem value="makanan">Makanan</SelectItem>
-                                <SelectItem value="minuman">Minuman</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
                 </div>
 
                 {/* Table Section */}
                 <div className="bg-white dark:bg-neutral-900/50 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs overflow-hidden">
-                    {categories.data.length === 0 ? (
+                    {reservationMembers.data.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-16 px-4">
                             <div className="size-12 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-400 dark:text-neutral-500 mb-4">
-                                <Folder className="size-6" />
+                                <Users className="size-6" />
                             </div>
-                            <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100">Kategori Kosong</h3>
+                            <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100">Anggota Kosong</h3>
                             <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center mt-1 max-w-xs">
-                                Tidak ada kategori yang ditemukan. Silakan tambahkan kategori baru.
+                                Tidak ada data anggota rombongan yang ditemukan.
                             </p>
                         </div>
                     ) : (
                         <>
-                            <Table>
-                                <TableHeader className="bg-neutral-50/50 dark:bg-neutral-900/30">
-                                    <TableRow>
-                                        <TableHead className="w-[80px]">No</TableHead>
-                                        <TableHead>Nama Kategori</TableHead>
-                                        <TableHead>Tipe</TableHead>
-                                        <TableHead className="text-right w-[150px]">Aksi</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {categories.data.map((category, idx) => (
-                                        <TableRow key={category.id} className="hover:bg-neutral-50/30 dark:hover:bg-neutral-900/10">
-                                            <TableCell className="font-medium text-neutral-500">
-                                                {(categories.current_page - 1) * categories.per_page + idx + 1}
-                                            </TableCell>
-                                            <TableCell className="font-semibold text-neutral-800 dark:text-neutral-200">
-                                                {category.name}
-                                            </TableCell>
-                                            <TableCell>
-                                                {category.type === 'makanan' ? (
-                                                    <Badge variant="outline" className="bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900/30 font-medium px-2 py-0.5 rounded-full flex items-center gap-1.5 w-fit">
-                                                        <Utensils className="size-3" />
-                                                        Makanan
-                                                    </Badge>
-                                                ) : (
-                                                    <Badge variant="outline" className="bg-sky-50 dark:bg-sky-950/20 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-900/30 font-medium px-2 py-0.5 rounded-full flex items-center gap-1.5 w-fit">
-                                                        <Coffee className="size-3" />
-                                                        Minuman
-                                                    </Badge>
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => handleOpenEdit(category)}
-                                                        className="size-8 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                                                    >
-                                                        <Edit2 className="size-3.5" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => handleOpenDelete(category)}
-                                                        className="size-8 text-red-600 dark:text-red-400 hover:text-red-950 dark:hover:text-red-200 hover:bg-red-50 dark:hover:bg-red-950/30"
-                                                    >
-                                                        <Trash2 className="size-3.5" />
-                                                    </Button>
-                                                </div>
-                                            </TableCell>
+                            <div className="overflow-x-auto">
+                                <Table>
+                                    <TableHeader className="bg-neutral-50/50 dark:bg-neutral-900/30">
+                                        <TableRow>
+                                            <TableHead className="w-[80px]">No</TableHead>
+                                            <TableHead>Nama Anggota</TableHead>
+                                            <TableHead>Sesi Reservasi (Koordinator)</TableHead>
+                                            <TableHead className="text-right w-[150px]">Aksi</TableHead>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {reservationMembers.data.map((member, idx) => (
+                                            <TableRow key={member.id} className="hover:bg-neutral-50/30 dark:hover:bg-neutral-900/10">
+                                                <TableCell className="font-medium text-neutral-500">
+                                                    {(reservationMembers.current_page - 1) * reservationMembers.per_page + idx + 1}
+                                                </TableCell>
+                                                <TableCell className="font-semibold text-neutral-800 dark:text-neutral-200">
+                                                    {member.name}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {member.reservation ? (
+                                                        <div className="flex flex-col gap-0.5">
+                                                            <span className="font-medium text-neutral-700 dark:text-neutral-300">{member.reservation.name}</span>
+                                                            <span className="text-xs text-neutral-500">Phone: {member.reservation.phone}</span>
+                                                        </div>
+                                                    ) : (
+                                                        <Badge variant="outline" className="text-neutral-400 bg-neutral-50">Tidak Ditemukan</Badge>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() => handleOpenEdit(member)}
+                                                            className="size-8 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                                                        >
+                                                            <Edit2 className="size-3.5" />
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() => handleOpenDelete(member)}
+                                                            className="size-8 text-red-600 dark:text-red-400 hover:text-red-950 dark:hover:text-red-200 hover:bg-red-50 dark:hover:bg-red-950/30"
+                                                        >
+                                                            <Trash2 className="size-3.5" />
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
 
                             {/* Pagination Controls */}
-                            {categories.last_page > 1 && (
+                            {reservationMembers.last_page > 1 && (
                                 <div className="flex items-center justify-between px-4 py-3 border-t border-neutral-200/80 dark:border-neutral-800/80 bg-neutral-50/30 dark:bg-neutral-900/20">
                                     <div className="text-xs text-neutral-500">
-                                        Menampilkan <span className="font-medium">{(categories.current_page - 1) * categories.total + 1}</span> sampai <span className="font-medium">{Math.min(categories.current_page * categories.total, categories.total)}</span> dari <span className="font-medium">{categories.total}</span> hasil
+                                        Menampilkan <span className="font-medium">{(reservationMembers.current_page - 1) * reservationMembers.per_page + 1}</span> sampai <span className="font-medium">{Math.min(reservationMembers.current_page * reservationMembers.per_page, reservationMembers.total)}</span> dari <span className="font-medium">{reservationMembers.total}</span> hasil
                                     </div>
                                     <div className="flex items-center gap-1">
-                                        {categories.links.map((link, i) => (
+                                        {reservationMembers.links?.map((link, i) => (
                                             <Button
                                                 key={i}
                                                 variant={link.active ? 'default' : 'outline'}
@@ -362,23 +350,23 @@ export default function CategoriesIndex() {
                 </div>
             </div>
 
-            {/* Dialog Tambah Kategori */}
+            {/* Dialog Tambah Anggota */}
             <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle className="text-lg font-bold">Tambah Kategori</DialogTitle>
+                        <DialogTitle className="text-lg font-bold">Tambah Anggota</DialogTitle>
                         <DialogDescription className="text-xs text-neutral-500">
-                            Masukkan detail kategori menu baru yang ingin ditambahkan.
+                            Tautkan nama anggota rombongan baru ke dalam sesi reservasi terdaftar.
                         </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleAddSubmit} className="space-y-4 py-2">
                         <div className="space-y-1.5">
-                            <Label htmlFor="add-name">Nama Kategori</Label>
+                            <Label htmlFor="add-name">Nama Anggota</Label>
                             <Input
                                 id="add-name"
                                 value={addData.name}
                                 onChange={(e) => setAddData('name', e.target.value)}
-                                placeholder="e.g. Espresso, Mocktail, Pasta"
+                                placeholder="e.g. Dayat, Kukuh, Siska Teman"
                                 className={addErrors.name ? 'border-red-500' : ''}
                             />
                             {addErrors.name && (
@@ -387,21 +375,24 @@ export default function CategoriesIndex() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="add-type">Tipe</Label>
+                            <Label htmlFor="add-res">Sesi Reservasi (Koordinator)</Label>
                             <Select
-                                value={addData.type}
-                                onValueChange={(val: 'makanan' | 'minuman') => setAddData('type', val)}
+                                value={addData.reservation_id}
+                                onValueChange={(val) => setAddData('reservation_id', val)}
                             >
-                                <SelectTrigger id="add-type">
-                                    <SelectValue placeholder="Pilih tipe" />
+                                <SelectTrigger id="add-res" className={addErrors.reservation_id ? 'border-red-500' : ''}>
+                                    <SelectValue placeholder="Pilih Reservasi" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="makanan">Makanan</SelectItem>
-                                    <SelectItem value="minuman">Minuman</SelectItem>
+                                    {reservations.map((res) => (
+                                        <SelectItem key={res.id} value={String(res.id)}>
+                                            {res.name} (HP: {res.phone})
+                                        </SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
-                            {addErrors.type && (
-                                <p className="text-xs text-red-500 mt-1">{addErrors.type}</p>
+                            {addErrors.reservation_id && (
+                                <p className="text-xs text-red-500 mt-1">{addErrors.reservation_id}</p>
                             )}
                         </div>
 
@@ -417,7 +408,7 @@ export default function CategoriesIndex() {
                             <Button 
                                 type="submit" 
                                 disabled={addProcessing} 
-                                className="bg-cafe-primary text-white hover:bg-cafe-primary/90 h-9"
+                                className="bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-neutral-50 dark:text-neutral-950 dark:hover:bg-neutral-200 h-9"
                             >
                                 {addProcessing ? (
                                     <>
@@ -425,7 +416,7 @@ export default function CategoriesIndex() {
                                         Menyimpan...
                                     </>
                                 ) : (
-                                    'Simpan Kategori'
+                                    'Simpan Anggota'
                                 )}
                             </Button>
                         </DialogFooter>
@@ -433,23 +424,23 @@ export default function CategoriesIndex() {
                 </DialogContent>
             </Dialog>
 
-            {/* Dialog Edit Kategori */}
+            {/* Dialog Edit Anggota */}
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle className="text-lg font-bold">Edit Kategori</DialogTitle>
+                        <DialogTitle className="text-lg font-bold">Edit Anggota</DialogTitle>
                         <DialogDescription className="text-xs text-neutral-500">
-                            Ubah detail kategori menu terpilih.
+                            Ubah detail nama atau pindahkan anggota ke sesi reservasi lain.
                         </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleEditSubmit} className="space-y-4 py-2">
                         <div className="space-y-1.5">
-                            <Label htmlFor="edit-name">Nama Kategori</Label>
+                            <Label htmlFor="edit-name">Nama Anggota</Label>
                             <Input
                                 id="edit-name"
                                 value={editData.name}
                                 onChange={(e) => setEditData('name', e.target.value)}
-                                placeholder="e.g. Espresso, Mocktail, Pasta"
+                                placeholder="e.g. Dayat, Kukuh, Siska Teman"
                                 className={editErrors.name ? 'border-red-500' : ''}
                             />
                             {editErrors.name && (
@@ -458,21 +449,24 @@ export default function CategoriesIndex() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="edit-type">Tipe</Label>
+                            <Label htmlFor="edit-res">Sesi Reservasi (Koordinator)</Label>
                             <Select
-                                value={editData.type}
-                                onValueChange={(val: 'makanan' | 'minuman') => setEditData('type', val)}
+                                value={editData.reservation_id}
+                                onValueChange={(val) => setEditData('reservation_id', val)}
                             >
-                                <SelectTrigger id="edit-type">
-                                    <SelectValue placeholder="Pilih tipe" />
+                                <SelectTrigger id="edit-res" className={editErrors.reservation_id ? 'border-red-500' : ''}>
+                                    <SelectValue placeholder="Pilih Reservasi" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="makanan">Makanan</SelectItem>
-                                    <SelectItem value="minuman">Minuman</SelectItem>
+                                    {reservations.map((res) => (
+                                        <SelectItem key={res.id} value={String(res.id)}>
+                                            {res.name} (HP: {res.phone})
+                                        </SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
-                            {editErrors.type && (
-                                <p className="text-xs text-red-500 mt-1">{editErrors.type}</p>
+                            {editErrors.reservation_id && (
+                                <p className="text-xs text-red-500 mt-1">{editErrors.reservation_id}</p>
                             )}
                         </div>
 
@@ -487,16 +481,16 @@ export default function CategoriesIndex() {
                             </Button>
                             <Button 
                                 type="submit" 
-                                disabled={editProcessing}
-                                className="bg-cafe-primary text-white hover:bg-cafe-primary/90 h-9"
+                                disabled={editProcessing} 
+                                className="bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-neutral-50 dark:text-neutral-950 dark:hover:bg-neutral-200 h-9"
                             >
                                 {editProcessing ? (
                                     <>
                                         <Loader2 className="size-4 animate-spin mr-1.5" />
-                                        Menyimpan...
+                                        Memperbarui...
                                     </>
                                 ) : (
-                                    'Perbarui Kategori'
+                                    'Simpan Perubahan'
                                 )}
                             </Button>
                         </DialogFooter>
@@ -504,19 +498,24 @@ export default function CategoriesIndex() {
                 </DialogContent>
             </Dialog>
 
-            {/* Dialog Konfirmasi Hapus Kategori */}
+            {/* Dialog Hapus Anggota */}
             <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
                 <DialogContent className="sm:max-w-[400px]">
                     <DialogHeader>
-                        <DialogTitle className="text-lg font-bold text-red-600 dark:text-red-400">Hapus Kategori</DialogTitle>
-                        <DialogDescription className="text-sm mt-2 text-neutral-600 dark:text-neutral-400">
-                            Apakah Anda yakin ingin menghapus kategori <span className="font-semibold text-neutral-950 dark:text-neutral-50">"{selectedCategory?.name}"</span>?
-                            <span className="block mt-2 font-medium text-amber-600 dark:text-amber-400 text-xs">
-                                Peringatan: Tindakan ini tidak dapat dibatalkan dan kategori tidak dapat dihapus jika masih ada menu yang terhubung.
-                            </span>
+                        <DialogTitle className="text-lg font-bold">Hapus Anggota</DialogTitle>
+                        <DialogDescription className="text-xs text-neutral-500">
+                            Tindakan ini tidak bisa dibatalkan. Apakah Anda yakin ingin menghapus anggota ini?
                         </DialogDescription>
                     </DialogHeader>
-                    <DialogFooter className="pt-4 gap-2 sm:gap-0 border-t border-neutral-100 dark:border-neutral-800">
+                    {selectedMember && (
+                        <div className="py-3 px-4 bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-100 dark:border-neutral-800 flex flex-col gap-1">
+                            <span className="font-semibold text-neutral-800 dark:text-neutral-200 text-sm">{selectedMember.name}</span>
+                            {selectedMember.reservation && (
+                                <span className="text-xs text-neutral-500">Sesi Koor: {selectedMember.reservation.name}</span>
+                            )}
+                        </div>
+                    )}
+                    <DialogFooter className="pt-2">
                         <Button 
                             type="button" 
                             variant="outline" 
@@ -530,7 +529,7 @@ export default function CategoriesIndex() {
                             onClick={handleDeleteSubmit}
                             className="bg-red-600 text-white hover:bg-red-700 hover:shadow-xs transition-all h-9"
                         >
-                            Ya, Hapus Kategori
+                            Ya, Hapus Anggota
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -539,16 +538,15 @@ export default function CategoriesIndex() {
     );
 }
 
-CategoriesIndex.layout = {
+ReservationMembersIndex.layout = {
     breadcrumbs: [
         {
             title: 'Dashboard',
             href: '/dashboard',
         },
         {
-            title: 'Kategori',
-            href: '/admin/categories',
+            title: 'Anggota Reservasi',
+            href: '/admin/reservation-members',
         },
     ],
 };
-

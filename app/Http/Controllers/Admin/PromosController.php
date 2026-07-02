@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Promos;
+use App\Models\Menus;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 
@@ -12,16 +13,17 @@ class PromosController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Promos::query();
+        $query = Promos::with('menu');
 
         if ($request->has('search') && $request->search != '') {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('title', 'like', '%' . $request->search . '%');
         }
 
         $promos = $query->orderBy('title', 'asc')->paginate(10)->withQueryString();
 
         return Inertia::render('admin/promos/index', [
             'promos'  => $promos,
+            'menus'   => Menus::orderBy('name', 'asc')->get(),
             'filters' => $request->only(['search', 'type'])
         ]);
     }
