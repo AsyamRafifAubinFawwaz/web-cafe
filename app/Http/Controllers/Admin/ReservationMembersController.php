@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ReservationMembers;
+use App\Models\Reservations;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,13 +15,14 @@ class ReservationMembersController extends Controller
      */
     public function index(Request $request)
     {
-        $query = ReservationMembers::query();
+        $query = ReservationMembers::with('reservation');
         if ($request->has('search') && $request->search != '') {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
         $reservationMembers = $query->orderBy('name', 'asc')->paginate(10);
         return Inertia::render('admin/reservation-members/index', [
             'reservationMembers' => $reservationMembers,
+            'reservations'       => Reservations::orderBy('name', 'asc')->get(),
             'filters'            => $request->only(['search'])
         ]);
     }

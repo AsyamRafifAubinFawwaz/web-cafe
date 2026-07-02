@@ -2,25 +2,27 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
-
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 
 #[Fillable([
     'reservation_id',
-    'name',
+    'invoice_number',
+    'payment_status',
+    'payment_method',
+    'issued_at',
+    'paid_at',
     'created_at',
     'updated_at',
     'deleted_at',
     'deleted_by'
 ])]
-class ReservationMembers extends Model
+class Invoices extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'reservation_members';
+    protected $table = 'invoices';
 
     protected static function boot()
     {
@@ -49,10 +51,5 @@ class ReservationMembers extends Model
     public function reservation()
     {
         return $this->belongsTo(Reservations::class, 'reservation_id');
-    }
-
-    public function reservationItems()
-    {
-        return $this->hasMany(ReservationItems::class, 'reservation_member_id');
     }
 }

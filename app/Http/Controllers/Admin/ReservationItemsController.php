@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ReservationItems;
+use App\Models\ReservationMembers;
+use App\Models\Menus;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,7 +16,7 @@ class ReservationItemsController extends Controller
      */
     public function index(Request $request)
     {
-        $query = ReservationItems::query();
+        $query = ReservationItems::with(['reservationMember', 'menu']);
 
         if ($request->has('reservation_member_id') && $request->reservation_member_id != '') {
             $query->where('reservation_member_id', $request->reservation_member_id);
@@ -23,8 +25,10 @@ class ReservationItemsController extends Controller
         $reservationItems = $query->orderBy('reservation_member_id', 'asc')->paginate(10)->withQueryString();
 
         return Inertia::render('admin/reservation-items/index', [
-            'reservationItems' => $reservationItems,
-            'filters'          => $request->only(['reservation_member_id'])
+            'reservationItems'   => $reservationItems,
+            'reservationMembers' => ReservationMembers::orderBy('name', 'asc')->get(),
+            'menus'              => Menus::orderBy('name', 'asc')->get(),
+            'filters'            => $request->only(['reservation_member_id'])
         ]);
     }
 

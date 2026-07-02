@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Reservations;
+use App\Models\ReservationPackages;
+use App\Models\Invoices;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,18 +16,25 @@ class ReservationsController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Reservations::query();
+        $query = Reservations::with(['reservationPackage', 'reservationMembers.reservationItems.menu']);
 
         if ($request->has('search') && $request->search != '') {
-            $query->where('name', 'like', '%' . $request->search . '%');
-            $query->orWhere('phone', 'like', '%' . $request->search . '%');
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('phone', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->has('status') && $request->status != '' && $request->status != 'all') {
+            $query->where('status', $request->status);
         }
 
         $reservations = $query->orderBy('reservation_date', 'desc')->paginate(10)->withQueryString();
 
         return Inertia::render('admin/reservations/index', [
-            'reservations' => $reservations,
-            'filters'      => $request->only(['search'])
+            'reservations'        => $reservations,
+            'reservationPackages' => ReservationPackages::orderBy('name', 'asc')->get(),
+            'filters'             => $request->only(['search', 'status'])
         ]);
     }
 
@@ -57,12 +66,13 @@ class ReservationsController extends Controller
         return redirect()->back()->with('success', 'Reservasi berhasil di tambahkan');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Reservations $reservations)
     {
-        //
+        $reservations->load(['reservationPackage', 'reservationMembers.reservationItems.menu', 'invoice']);
+
+        return Inertia::render('admin/reservations/show', [
+            'reservation' => $reservations
+        ]);
     }
 
     /**
@@ -89,7 +99,20 @@ class ReservationsController extends Controller
             'total_amount'     => 'nullable|integer',
         ]);
 
+        $oldStatus = $reservations->status;
         $reservations->update($validated);
+
+        if (isset($validated['status']) && $validated['status'] === 'invoiced' && $oldStatus !== 'invoiced') {
+            $invoiceNumber = 'INV-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
+
+            Invoices::create([
+                'reservation_id' => $reservations->id,
+                'invoice_number' => $invoiceNumber,
+                'payment_status' => 'unpaid',
+                'issued_at'      => now(),
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Reservasi berhasil di update');
     }
 
