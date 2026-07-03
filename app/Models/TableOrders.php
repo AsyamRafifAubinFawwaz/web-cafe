@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 #[Fillable([
-    'table_number',
+    'table_id',
     'status',
     'payment_method',
     'total_amount',
@@ -45,8 +45,13 @@ class TableOrders extends Model
         });
     }
 
-    public function tableOrderItems()
+    public function items()
     {
         return $this->hasMany(TableOrderItems::class, 'table_order_id');
+    }
+
+    public function table()
+    {
+        return $this->belongsTo(Tables::class, 'table_id');
     }
 }

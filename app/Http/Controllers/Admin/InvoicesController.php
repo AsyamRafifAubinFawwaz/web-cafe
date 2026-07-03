@@ -15,11 +15,11 @@ class InvoicesController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Invoices::query();
+        $query = Invoices::with('reservation');
         if ($request->has('search') && $request->search != '') {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('invoice_number', 'like', '%' . $request->search . '%');
         }
-        $invoices = $query->orderBy('name', 'asc')->paginate(10);
+        $invoices = $query->orderBy('invoice_number', 'desc')->paginate(10)->withQueryString();
         return Inertia::render('admin/invoices/index', [
             'invoices' => $invoices,
             'filters' => $request->only(['search'])

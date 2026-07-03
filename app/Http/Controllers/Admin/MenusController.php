@@ -51,7 +51,7 @@ class MenusController extends Controller
 
         Menus::create($validated);
 
-        return redirect()->route('admin.menus.index')->with('success', 'Menu created successfully.');
+        return redirect()->back()->with('success', 'Menu created successfully.');
     }
 
     public function update(Request $request, Menus $menu)
