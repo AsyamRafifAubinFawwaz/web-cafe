@@ -32,8 +32,8 @@ export default function Welcome() {
     return (
         <>
             <Head>
-                <title>Motrack Cafe Solution - Tempat Terbaik untuk Kopi & Diskusi</title>
-                <meta name="description" content="Selamat datang di Motrack Cafe Solution, kafe modern dengan biji kopi premium, ruang kolaborasi nyaman, and reservasi kelompok terintegrasi." />
+                <title>Nugas Cafe - Tempat Terbaik untuk Kopi & Diskusi</title>
+                {/* <meta name="description" content="Selamat datang di Motrack Cafe Solution, kafe modern dengan biji kopi premium, ruang kolaborasi nyaman, and reservasi kelompok terintegrasi." /> */}
             </Head>
 
             <div className="bg-cafe-bg text-cafe-secondary min-h-screen font-poppins antialiased select-none scroll-smooth">

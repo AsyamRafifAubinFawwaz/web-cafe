@@ -9,14 +9,24 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+    font-family: 'JawaPalsu';
+    src: url(../fonts/JAWAPALSU.TTF);
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 @theme {
     --font-poppins: 'Poppins', sans-serif;
     --font-chewy: 'Chewy', system-ui;
+    --font-jawa: 'JawaPalsu', sans-serif;
 
     --color-cafe-primary: #DF4A4D;
     --color-cafe-secondary: #3E434B;
     --color-cafe-bg: #FEFAEF;
-    --color-cafe-white: #ffffff;
+    --color-cafe-white: #F4ECEC;
+    --color-cafe-yellow : #FBD380;
 
     --font-sans:
         'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
@@ -150,4 +160,79 @@
     body {
         @apply bg-background text-foreground;
     }
+}
+
+/* ============================================
+   SCROLL ANIMATION SYSTEM
+   ============================================ */
+
+/* Base state — hidden before scroll trigger */
+.scroll-hidden {
+    opacity: 0;
+    will-change: transform, opacity;
+}
+
+/* Fade Up Animation */
+.scroll-hidden.scroll-fade-up {
+    transform: translateY(40px);
+}
+.scroll-visible.scroll-fade-up {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Fade Down Animation */
+.scroll-hidden.scroll-fade-down {
+    transform: translateY(-40px);
+}
+.scroll-visible.scroll-fade-down {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Fade Left Animation */
+.scroll-hidden.scroll-fade-left {
+    transform: translateX(-50px);
+}
+.scroll-visible.scroll-fade-left {
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Fade Right Animation */
+.scroll-hidden.scroll-fade-right {
+    transform: translateX(50px);
+}
+.scroll-visible.scroll-fade-right {
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Scale In Animation */
+.scroll-hidden.scroll-scale-in {
+    transform: scale(0.85);
+}
+.scroll-visible.scroll-scale-in {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Visible state for all — base */
+.scroll-visible {
+    opacity: 1;
+}
+
+/* Stagger delay support via CSS custom property */
+.scroll-stagger {
+    transition-delay: var(--stagger-delay, 0ms) !important;
 }
