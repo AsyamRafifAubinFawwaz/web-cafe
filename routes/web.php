@@ -1,11 +1,42 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoriesController;
+use App\Http\Controllers\Admin\GalleriesController;
+use App\Http\Controllers\Admin\InvoicesController;
+use App\Http\Controllers\Admin\MenusController;
+use App\Http\Controllers\Admin\PromosController;
+use App\Http\Controllers\Admin\ReservationItemsController;
+use App\Http\Controllers\Admin\ReservationMembersController;
+use App\Http\Controllers\Admin\ReservationPackagesController;
+use App\Http\Controllers\Admin\ReservationsController;
+use App\Http\Controllers\Admin\TableOrdersController;
+use App\Http\Controllers\Admin\TableOrderItemsController;
+use App\Http\Controllers\Admin\TablesController;
+use App\Http\Controllers\GuestOrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
 
+Route::get('/guest/menu', [GuestOrderController::class, 'index'])->name('guest.menu.index');
+Route::post('/guest/menu', [GuestOrderController::class, 'store'])->name('guest.menu.store');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::prefix('admin')->group(function () {
+        Route::resource('categories', CategoriesController::class)->names('categories');
+        Route::resource('menus', MenusController::class)->names('menus');
+        Route::resource('galleries', GalleriesController::class)->names('galleries');
+        Route::resource('promos', PromosController::class)->names('promos');
+        Route::resource('invoices', InvoicesController::class)->names('invoices');
+        Route::resource('reservation-packages', ReservationPackagesController::class)->names('reservation-packages');
+        Route::resource('reservations', ReservationsController::class)->names('reservations');
+        Route::resource('reservation-members', ReservationMembersController::class)->names('reservation-members');
+        Route::resource('reservation-items', ReservationItemsController::class)->names('reservation-items');
+        Route::resource('tables', TablesController::class)->names('tables');
+        Route::resource('table-orders', TableOrdersController::class)->names('table-orders');
+        Route::resource('table-order-items', TableOrderItemsController::class)->names('table-order-items');
+    });
 });
 
-require __DIR__.'/settings.php';
+require __DIR__ . '/settings.php';
+
