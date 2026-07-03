@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, Image, Percent, Package, CalendarCheck, Users, ShoppingBag, Folder } from 'lucide-react';
+import { BookOpen, FolderGit2, LayoutGrid, Image, Percent, Package, CalendarCheck, Users, ShoppingBag, Folder, Receipt, QrCode } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -23,6 +23,9 @@ import reservationPackages from '@/routes/reservation-packages';
 import reservations from '@/routes/reservations';
 import reservationMembers from '@/routes/reservation-members';
 import reservationItems from '@/routes/reservation-items';
+import invoices from '@/routes/invoices';
+import tableOrders from '@/routes/table-orders';
+import tables from '@/routes/tables';
 
 const overviewNavItems: NavItem[] = [
     {
@@ -88,6 +91,24 @@ const reservationNavItems: NavItem[] = [
     },
 ];
 
+const orderNavItems: NavItem[] = [
+    {
+        title: 'Pesanan Meja',
+        href: tableOrders.index.url(),
+        icon: ShoppingBag,
+    },
+    {
+        title: 'Master Meja',
+        href: tables.index.url(),
+        icon: QrCode,
+    },
+    {
+        title: 'Invoice Tagihan',
+        href: invoices.index.url(),
+        icon: Receipt,
+    },
+];
+
 const footerNavItems: NavItem[] = [
     // {
     //     title: 'Repository',
@@ -120,6 +141,7 @@ export function AppSidebar() {
                 <NavMain groupLabel="Overview" items={overviewNavItems} />
                 <NavMain groupLabel="Katalog & Menu" items={catalogNavItems} />
                 <NavMain groupLabel="Reservasi" items={reservationNavItems} />
+                <NavMain groupLabel="Pesanan & Transaksi" items={orderNavItems} />
             </SidebarContent>
 
             <SidebarFooter>

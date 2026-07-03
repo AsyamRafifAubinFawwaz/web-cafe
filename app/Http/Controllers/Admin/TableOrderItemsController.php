@@ -14,7 +14,7 @@ class TableOrderItemsController extends Controller
      */
     public function index(Request $request)
     {
-        $query = TableOrderItems::query();
+        $query = TableOrderItems::with(['menu', 'tableOrder']);
 
         if ($request->has('table_order_id') && $request->table_order_id != '') {
             $query->where('table_order_id', $request->table_order_id);

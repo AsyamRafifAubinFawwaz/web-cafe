@@ -51,4 +51,9 @@ class Menus extends Model
     {
         return $this->belongsTo(Categories::class, 'category_id');
     }
+
+    public function promo()
+    {
+        return $this->hasOne(Promos::class, 'menu_id');
+    }
 }

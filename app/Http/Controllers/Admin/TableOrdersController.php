@@ -14,11 +14,13 @@ class TableOrdersController extends Controller
      */
     public function index(Request $request)
     {
-        $query = TableOrders::query();
+        $query = TableOrders::with('table');
         if ($request->has('search') && $request->search != '') {
-            $query->where('table_number', 'like', '%' . $request->search . '%');
+            $query->whereHas('table', function($q) use ($request) {
+                $q->where('table_number', 'like', '%' . $request->search . '%');
+            });
         }
-        $tableOrders = $query->orderBy('table_number', 'asc')->paginate(10)->withQueryString();
+        $tableOrders = $query->orderBy('id', 'desc')->paginate(10)->withQueryString();
         return Inertia::render('admin/table-orders/index', [
             'tableOrders' => $tableOrders,
             'filters' => $request->only(['search'])
@@ -45,8 +47,11 @@ class TableOrdersController extends Controller
             'total_amount' => 'required|integer',
         ]);
 
-        TableOrders::create($validated);
-        return redirect()->back()->with('success', 'Table Order berhasil ditambahkan.');
+        $tableOrder = TableOrders::create($validated);
+        return redirect()->back()->with([
+            'success' => 'Table Order berhasil ditambahkan.',
+            'new_order_id' => $tableOrder->id
+        ]);
     }
 
     /**
