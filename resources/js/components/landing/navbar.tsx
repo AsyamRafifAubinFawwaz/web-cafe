@@ -59,20 +59,15 @@ export default function Navbar({ auth }: NavbarProps) {
         <header
             className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 font-poppins ${
                 scrolled
-                    ? 'bg-cafe-bg/95 backdrop-blur-md shadow-md border-b border-cafe-secondary/5 py-4'
-                    : 'bg-transparent py-6'
+                    ? 'bg-cafe-white/95 backdrop-blur-md shadow-md py-1'
+                    : 'bg-transparent py-2'
             }`}
         >
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl px-4 sm:px-6 lg:px-8">
                 <nav className="flex items-center justify-between">
                     {/* Brand Logo */}
                     <a href="#hero" onClick={(e) => handleScrollTo(e, '#hero')} className="flex items-center gap-2 group">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cafe-primary text-white transition-transform group-hover:rotate-12">
-                            <Coffee className="h-5 w-5" />
-                        </div>
-                        <span className="font-chewy text-xl tracking-wider text-cafe-secondary group-hover:text-cafe-primary transition-colors">
-                            MOTRACK
-                        </span>
+                        <img className='w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18' src="images/logo-nugas.png" alt="" />
                     </a>
 
                     {/* Desktop Menu Links */}
@@ -82,15 +77,18 @@ export default function Navbar({ auth }: NavbarProps) {
                                 key={link.name}
                                 href={link.href}
                                 onClick={(e) => handleScrollTo(e, link.href)}
-                                className="text-xs font-semibold text-cafe-secondary/80 hover:text-cafe-primary transition-colors"
-                            >
+                                className={`text-sm font-semibold transition-colors duration-300 ${
+                                    scrolled
+                                        ? 'text-gray-700 hover:text-cafe-primary' 
+                                        : 'text-cafe-yellow hover:text-white'
+                                }`}>
                                 {link.name}
                             </a>
                         ))}
                     </div>
 
                     {/* Desktop CTA / Login link */}
-                    <div className="hidden lg:flex items-center gap-4">
+                    {/* <div className="hidden lg:flex items-center gap-4">
                         {auth?.user ? (
                             <Link
                                 href={dashboard()}
@@ -107,13 +105,12 @@ export default function Navbar({ auth }: NavbarProps) {
                                 Masuk / Kasir
                             </Link>
                         )}
-                    </div>
+                    </div> */}
 
-                    {/* Mobile Menu Button */}
                     <div className="flex items-center lg:hidden">
                         <button
                             onClick={() => setIsOpen(!isOpen)}
-                            className="text-cafe-secondary hover:text-cafe-primary focus:outline-none transition-colors"
+                            className={`hover:text-cafe-primary focus:outline-none transition-colors ${scrolled ? 'text-cafe-secondary' : 'text-cafe-white'}`}
                         >
                             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                         </button>
