@@ -9,7 +9,7 @@ import Navbar from '@/components/landing/navbar';
 import Promo from '@/components/landing/promo';
 import Reviews from '@/components/landing/reviews';
 
-export default function Welcome() {
+export default function Welcome({ categories = [], menus = [], promos = [], galleries = [] }: any) {
     const { auth } = usePage().props as any;
 
     const handleScrollToSection = (sectionId: string) => {
@@ -47,16 +47,16 @@ export default function Welcome() {
                 />
 
                 {/* 2. About Section */}
-                <About />
+                <About menuCount={menus.length} promoCount={promos.length} />
 
                 {/* 3. Menu Section */}
-                <Menu />
+                <Menu categories={categories} menuItems={menus} />
 
                 {/* 4. Promo Section */}
-                <Promo />
+                {promos && promos.length > 0 && <Promo promos={promos} />}
 
                 {/* 5. Gallery Section */}
-                <Gallery />
+                <Gallery galleries={galleries} />
 
                 {/* 6. Rating & Ulasan Section */}
                 <Reviews />

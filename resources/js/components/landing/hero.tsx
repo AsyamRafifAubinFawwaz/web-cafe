@@ -12,27 +12,27 @@ export default function Hero({ onReservasiClick, onMenuClick }: HeroProps) {
     const ctaAnim = useScrollAnimation<HTMLDivElement>({ threshold: 0.1 });
 
     return (
-        <section id="hero" className="min-h-screen max-h-screen relative overflow-hidden bg-[#ED4A4D] py-12 sm:py-16 md:py-24 lg:py-24">
-          
+        <section id="hero" className="flex justify-center items-center min-h-screen max-h-screen relative overflow-hidden bg-[#ED4A4D] lg:pt-12">
+
             <div className="mx-auto max-screen flex flex-col justify-center items-center w-full h-full px-4 sm:px-6">
 
-                <img className='w-full absolute bottom-[-50%] right-[-4%] scale-130 opacity-90' src="images/hero-img.png" alt="" />
+                <img className='w-full absolute bottom-0 lg:bottom-[-50%] right-[-4%] scale-200 lg:scale-130 opacity-90' src="images/hero-img.png" alt="" />
 
                 <p
                     ref={subtitleAnim.ref}
-                    className={`text-center text-cafe-white font-jawa text-base sm:text-lg md:text-2xl lg:text-4xl pb-2 scroll-fade-down ${subtitleAnim.isVisible ? 'scroll-visible' : 'scroll-hidden'}`}
+                    className={`text-center text-cafe-white font-jawa text-2xl md:text-4xl lg:text-4xl pb-4 lg:pb-2 scroll-fade-down ${subtitleAnim.isVisible ? 'scroll-visible' : 'scroll-hidden'}`}
                 >
                     Nugas Cafe
                 </p>
 
                 <h1
                     ref={titleAnim.ref}
-                    className={`text-center font-chewy text-4xl sm:text-6xl md:text-7xl lg:text-8xl leading-[0.9] text-cafe-white drop-shadow-sm scroll-fade-up ${titleAnim.isVisible ? 'scroll-visible' : 'scroll-hidden'}`}
+                    className={`text-center font-chewy text-[3.5rem] md:text-[6.5rem] lg:text-8xl leading-[0.9] text-cafe-white drop-shadow-sm scroll-fade-up ${titleAnim.isVisible ? 'scroll-visible' : 'scroll-hidden'}`}
                 >
                     Rasa Yang Tepat Untuk <br /> Setiap Momen Kamu di <br />
                     <span className='text-cafe-yellow'>Jember.</span>
                 </h1>
-                        
+
                 <div
                     ref={ctaAnim.ref}
                     className={`mt-8 sm:mt-10 flex flex-col sm:flex-row justify-center lg:justify-start gap-3 sm:gap-4 w-full sm:w-auto px-4 sm:px-0 scroll-fade-up scroll-stagger ${ctaAnim.isVisible ? 'scroll-visible' : 'scroll-hidden'}`}
@@ -44,7 +44,7 @@ export default function Hero({ onReservasiClick, onMenuClick }: HeroProps) {
                     >
                         <span className="relative z-10">Reservasi</span>
                     </button>
-                    
+
                     <button
                         onClick={onMenuClick}
                         className="group relative overflow-hidden rounded-xl bg-cafe-primary/50 px-8 sm:px-12 py-3.5 sm:py-4 font-poppins font-bold text-sm sm:text-base text-cafe-white shadow-lg transition-all duration-300 hover:bg-cafe-white hover:text-cafe-primary hover:scale-105 active:scale-95 cursor-pointer border-3 border-cafe-white"
@@ -53,7 +53,7 @@ export default function Hero({ onReservasiClick, onMenuClick }: HeroProps) {
                     </button>
                 </div>
 
-                        {/* <div className="mt-12 grid grid-cols-3 gap-6 border-t border-cafe-secondary/10 pt-8 max-w-md mx-auto lg:mx-0">
+                {/* <div className="mt-12 grid grid-cols-3 gap-6 border-t border-cafe-secondary/10 pt-8 max-w-md mx-auto lg:mx-0">
                             <div>
                                 <p className="font-chewy text-2xl md:text-3xl text-cafe-primary">100%</p>
                                 <p className="font-poppins text-xs text-cafe-secondary/70">Arabica & Robusta</p>
@@ -71,8 +71,8 @@ export default function Hero({ onReservasiClick, onMenuClick }: HeroProps) {
 
 
 
-                    
-                    {/* <div className="relative order-1 lg:order-2 flex justify-center items-center">
+
+                {/* <div className="relative order-1 lg:order-2 flex justify-center items-center">
                         <div className="relative w-full max-w-md md:max-w-lg lg:max-w-full">
                     
                             <div className="absolute inset-0 translate-x-4 translate-y-4 rounded-3xl border-2 border-dashed border-cafe-primary/30" />
@@ -91,8 +91,8 @@ export default function Hero({ onReservasiClick, onMenuClick }: HeroProps) {
                          mot   </div>
                         </div>
                     </div> */}
-                    
-                
+
+
             </div>
         </section>
     );
