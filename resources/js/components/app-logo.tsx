@@ -3,12 +3,12 @@ import AppLogoIcon from '@/components/app-logo-icon';
 export default function AppLogo() {
     return (
         <>
-            <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-cafe-primary text-white">
-                <AppLogoIcon className="size-5 fill-current text-white" />
+            <div className="flex aspect-square size-8 items-center justify-center rounded-md overflow-hidden bg-transparent">
+                <AppLogoIcon className="size-8 object-contain" />
             </div>
             <div className="ml-1 grid flex-1 text-left text-sm">
-                <span className="mb-0.5 truncate leading-tight font-semibold">
-                    Nugas Caffee Admin
+                <span className="mb-0.5 truncate leading-tight font-semibold text-cafe-secondary font-poppins">
+                    Nugas Cafe Admin
                 </span>
             </div>
         </>

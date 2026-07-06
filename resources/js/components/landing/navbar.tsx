@@ -58,14 +58,14 @@ export default function Navbar({ auth }: NavbarProps) {
     return (
         <header
             className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 font-poppins ${
-                scrolled
-                    ? 'bg-cafe-white/95 backdrop-blur-md shadow-md py-1'
+                scrolled || isOpen
+                    ? 'bg-cafe-bg/95 backdrop-blur-md shadow-md py-1'
                     : 'bg-transparent py-2'
             }`}
         >
-            <div className="max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="max-w-screen px-4 sm:px-6 lg:px-8">
                 <nav className="flex items-center justify-between">
-                    {/* Brand Logo */}
+                   
                     <a href="#hero" onClick={(e) => handleScrollTo(e, '#hero')} className="flex items-center gap-2 group">
                         <img className='w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18' src="images/logo-nugas.png" alt="" />
                     </a>
@@ -85,34 +85,34 @@ export default function Navbar({ auth }: NavbarProps) {
                                 {link.name}
                             </a>
                         ))}
+                        {/* Desktop CTA / Login link */}
+                        <div className="hidden lg:flex items-center gap-4">
+                            {auth?.user ? (
+                                <Link
+                                    href={dashboard()}
+                                    className="inline-flex items-center gap-2 rounded-xl bg-cafe-secondary text-white px-5 py-2.5 text-xs font-bold shadow-md hover:bg-cafe-secondary/95 transition-all active:scale-95"
+                                >
+                                    <User className="h-4 w-4" />
+                                    Dashboard
+                                </Link>
+                            ) : (
+                                <Link
+                                    href={login()}
+                                    className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold shadow-md transition-all active:scale-95 ${scrolled  ? 'bg-cafe-primary text-cafe-white hover:bg-cafe-primary/95' : 'bg-cafe-white text-cafe-primary hover:bg-cafe-white/95'}`}
+                                >
+                                    Masuk
+                                </Link>
+                            )}
+                        </div>
                     </div>
 
-                    {/* Desktop CTA / Login link */}
-                    {/* <div className="hidden lg:flex items-center gap-4">
-                        {auth?.user ? (
-                            <Link
-                                href={dashboard()}
-                                className="inline-flex items-center gap-2 rounded-xl bg-cafe-secondary text-white px-5 py-2.5 text-xs font-bold shadow-md hover:bg-cafe-secondary/95 transition-all active:scale-95"
-                            >
-                                <User className="h-4 w-4" />
-                                Dashboard
-                            </Link>
-                        ) : (
-                            <Link
-                                href={login()}
-                                className="inline-flex items-center gap-2 rounded-xl bg-cafe-primary text-white px-5 py-2.5 text-xs font-bold shadow-md hover:bg-cafe-primary/95 transition-all active:scale-95"
-                            >
-                                Masuk / Kasir
-                            </Link>
-                        )}
-                    </div> */}
 
                     <div className="flex items-center lg:hidden">
                         <button
                             onClick={() => setIsOpen(!isOpen)}
-                            className={`hover:text-cafe-primary focus:outline-none transition-colors ${scrolled ? 'text-cafe-secondary' : 'text-cafe-white'}`}
+                            className={`hover:text-cafe-secondary/70 focus:outline-none transition-colors ${scrolled || isOpen ? 'text-cafe-secondary' : 'text-cafe-white'}`}
                         >
-                            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                            {isOpen ? <X className="h-8 w-8 md:h-10 md:w-10" /> : <Menu className="h-8 w-8 md:h-10 md:w-10" />}
                         </button>
                     </div>
                 </nav>
@@ -147,7 +147,7 @@ export default function Navbar({ auth }: NavbarProps) {
                                     href={login()}
                                     className="flex items-center justify-center gap-2 rounded-xl bg-cafe-primary text-white py-3 text-xs font-bold"
                                 >
-                                    Masuk / Kasir
+                                    Masuk
                                 </Link>
                             )}
                         </div>

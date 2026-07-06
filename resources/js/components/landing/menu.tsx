@@ -1,4 +1,4 @@
-import { Search, Tag, ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import { Search, Tag, ChevronLeft, ChevronRight, Star, Coffee } from 'lucide-react';
 import React, { useState, useMemo, useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Scrollbar } from 'swiper/modules';
@@ -27,24 +27,12 @@ interface Category {
     name: string;
 }
 
-const categories: Category[] = [
-    { id: 1, type: 'minuman', name: 'Espresso Based' },
-    { id: 2, type: 'minuman', name: 'Manual Brew' },
-    { id: 3, type: 'minuman', name: 'Signature Drinks' },
-    { id: 4, type: 'makanan', name: 'Main Course' },
-    { id: 5, type: 'makanan', name: 'Snacks & Desserts' },
-];
+interface MenuProps {
+    categories?: Category[];
+    menuItems?: MenuItem[];
+}
 
-const menuItems: MenuItem[] = [
-    { id: 101, category_id: 4, name: 'Spaghetti Agilio', description: 'susu mbg gaada apa apanya.', price: 15000, rating: 2.4, image: 'https://images.unsplash.com/photo-1546548970-71785318a17b?w=500&auto=format&fit=crop&q=60' },
-    { id: 102, category_id: 1, name: 'Kopi Latte', description: 'susu mbg gaada apa apanya.', price: 15000, rating: 4.6, image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=500&auto=format&fit=crop&q=60' },
-    { id: 103, category_id: 1, name: 'Americano', description: 'susu mbg gaada apa apanya.', price: 15000, rating: 4.6, image: 'https://images.unsplash.com/photo-1510707577719-5d6878021d49?w=500&auto=format&fit=crop&q=60' },
-    { id: 401, category_id: 4, name: 'Ayam Geprek', description: 'Nasi, Ayam Krispy Geprek...', price: 15000, rating: 4.6, image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=500&auto=format&fit=crop&q=60' },
-    { id: 104, category_id: 1, name: 'Caramel Macchiato', description: 'Espresso dengan sirup vanilla wangi.', price: 28000, rating: 4.8, image: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=500&auto=format&fit=crop&q=60' },
-    { id: 105, category_id: 1, name: 'Caramel Macchiato', description: 'Espresso dengan sirup vanilla wangi.', price: 28000, rating: 4.8, image: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=500&auto=format&fit=crop&q=60' },
-];
-
-export default function Menu() {
+export default function Menu({ categories = [], menuItems = [] }: MenuProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeMainType, setActiveMainType] = useState<'all' | 'makanan' | 'minuman'>('all');
     const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
@@ -55,6 +43,15 @@ export default function Menu() {
     const searchAnim = useScrollAnimation<HTMLDivElement>({ threshold: 0.2 });
     const filterAnim = useScrollAnimation<HTMLDivElement>({ threshold: 0.2 });
     const cardsAnim = useScrollAnimation<HTMLDivElement>({ threshold: 0.1 });
+
+    const getImageUrl = (imagePath?: string) => {
+        if (!imagePath) return '';
+        if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+            return imagePath;
+        }
+        const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+        return `/storage/${cleanPath}`;
+    };
 
     const handleMainTypeChange = (type: 'all' | 'makanan' | 'minuman') => {
         setActiveMainType(type);
@@ -89,7 +86,7 @@ export default function Menu() {
     };
 
     return (
-        <section id="menu" className="bg-[#FFFCEF] py-12 sm:py-16 md:py-24 overflow-hidden">
+        <section id="menu" className="bg-cafe-bg py-12 sm:py-16 md:py-24 overflow-hidden">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 
                 {/* Header */}
@@ -102,9 +99,21 @@ export default function Menu() {
                     </h2>
                 </div>
 
-                {/* Search Bar */}
-                <div
-                    ref={searchAnim.ref}
+                {menuItems.length === 0 ? (
+                    <div className="mt-8 mx-auto max-w-2xl bg-white/80 backdrop-blur-md p-8 sm:p-12 rounded-[2rem] border border-[#D94343]/20 shadow-lg text-center">
+                        <div className="mx-auto w-16 h-16 bg-[#FFFCEF] rounded-full flex items-center justify-center mb-4 border border-[#D94343]/30">
+                            <Coffee className="w-8 h-8 text-[#D94343]" />
+                        </div>
+                        <h3 className="font-chewy text-2xl sm:text-3xl text-cafe-primary mb-3">Menu Sedang Disiapkan!</h3>
+                        <p className="font-poppins text-sm sm:text-base text-cafe-secondary/80 leading-relaxed">
+                            Kami sedang meracik dan mempersiapkan menu-menu spesial yang pastinya bikin kamu ketagihan. Silakan cek kembali nanti atau hubungi kami untuk informasi lebih lanjut.
+                        </p>
+                    </div>
+                ) : (
+                    <>
+                        {/* Search Bar */}
+                        <div
+                            ref={searchAnim.ref}
                     className={`max-w-screen flex justify-center items-center scroll-fade-up scroll-stagger ${searchAnim.isVisible ? 'scroll-visible' : 'scroll-hidden'}`}
                     style={{ '--stagger-delay': '100ms' } as React.CSSProperties}
                 >
@@ -193,7 +202,7 @@ export default function Menu() {
                                             
                                             <div className="relative overflow-hidden rounded-2xl aspect-[4/3.5] bg-gray-50">
                                                 <img
-                                                    src={item.image}
+                                                    src={getImageUrl(item.image)}
                                                     alt={item.name}
                                                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                                                 />
@@ -276,6 +285,8 @@ export default function Menu() {
                             Menu tidak ditemukan. Coba kata kunci lainnya.
                         </p>
                     </div>
+                )}
+                    </>
                 )}
             </div>
 

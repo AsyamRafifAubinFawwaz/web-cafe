@@ -3,17 +3,25 @@ import { FaInstagram, FaFacebookF, FaTiktok, FaYoutube } from 'react-icons/fa6';
 import React from 'react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
-export default function About() {
+interface AboutProps {
+    menuCount?: number;
+    promoCount?: number;
+}
+
+export default function About({ menuCount = 0, promoCount = 0 }: AboutProps) {
     const statsAnim = useScrollAnimation<HTMLDivElement>({ threshold: 0.2 });
     const imageAnim = useScrollAnimation<HTMLDivElement>({ threshold: 0.15 });
     const textAnim = useScrollAnimation<HTMLDivElement>({ threshold: 0.15 });
 
     const stats = [
-        { icon: Utensils, value: '20+', label: 'Menu' },
+        { icon: Utensils, value: menuCount, label: 'Menu' },
         { icon: Clock, value: '24/7', label: 'Pelayanan' },
-        { icon: Star, value: '4,8', label: 'Rating' },
-        { icon: Tag, value: '10+', label: 'Promo' },
+        { icon: Star, value: '4,9', label: 'Rating' },
     ];
+
+    if (promoCount > 0) {
+        stats.push({ icon: Tag, value: promoCount, label: 'Promo' });
+    }
     
     return (
         <section id="about" className="bg-cafe-bg pt-12 sm:pt-16 md:pt-24">
@@ -23,7 +31,7 @@ export default function About() {
                 ref={statsAnim.ref}
                 className={`flex justify-center items-center max-w-screen pb-12 sm:pb-16 md:pb-20 px-4 scroll-fade-up ${statsAnim.isVisible ? 'scroll-visible' : 'scroll-hidden'}`}
             >
-                <div className="grid grid-cols-2 gap-6 sm:gap-8 md:flex md:justify-between md:items-center w-full md:w-[60%]">
+                <div className="grid grid-cols-2 gap-6 sm:gap-8 md:flex md:justify-between md:items-center w-full md:w-[70%]">
                     {stats.map((stat, idx) => {
                         const Icon = stat.icon;
                         return (
@@ -32,11 +40,11 @@ export default function About() {
                                 className="grid items-center justify-center scroll-stagger"
                                 style={{ '--stagger-delay': `${idx * 100}ms` } as React.CSSProperties}
                             >
-                                <h2 className='text-center text-cafe-primary font-poppins font-bold text-2xl sm:text-3xl md:text-4xl flex items-center gap-2 justify-center'>
+                                <h2 className='text-center text-cafe-primary font-poppins font-bold text-2xl sm:text-3xl md:text-3xl flex items-center gap-2 justify-center'>
                                     <Icon className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-cafe-primary" />
                                     {stat.value}
                                 </h2>
-                                <p className='text-center text-cafe-primary font-poppins text-sm sm:text-base md:text-lg'>{stat.label}</p>
+                                <p className='text-center text-cafe-primary font-poppins text-sm sm:text-base md:text-md'>{stat.label}</p>
                             </div>
                         );
                     })}

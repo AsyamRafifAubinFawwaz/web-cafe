@@ -15,32 +15,46 @@ interface PromoPoster {
     image: string; // URL atau path ke file poster promo (.png / .jpg)
 }
 
-export default function Promo() {
+interface PromoProps {
+    promos?: PromoPoster[];
+}
+
+export default function Promo({ promos = [] }: PromoProps) {
     const swiperRef = useRef<SwiperType | null>(null);
     const sectionAnim = useScrollAnimation<HTMLDivElement>({ threshold: 0.15 });
 
-    const promoPosters: PromoPoster[] = [
-        {
-            id: 1,
-            title: 'Promo Special Americano 40% Off',
-            image: 'images/poster-promo.png'
-        },
-        {
-            id: 2,
-            title: 'Promo Happy Hour Espresso Base',
-            image: 'images/poster-promo.png'
-        },
-        {
-            id: 3,
-            title: 'Paket Hemat Work From Cafe Combo',
-            image: 'images/poster-promo.png'
+    const getImageUrl = (imagePath?: string) => {
+        if (!imagePath) return '';
+        if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+            return imagePath;
         }
-    ];
+        const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+        return `/storage/${cleanPath}`;
+    };
+
+    if (promos.length === 0) return null;
 
     return (
-        <section id="promo" className="bg-gradient-to-b from-[#E6D5B5] to-[#DCC0A1] py-12 sm:py-16 md:py-20 overflow-hidden">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <section id="promo" className="bg-gradient-to-br from-cafe-primary via-[#d44346] to-[#bd3538] py-12 sm:py-16 md:py-24 overflow-hidden relative shadow-inner">
+            
+            {/* Dekorasi Lingkaran Halus (Opsional, agar bg tidak terlalu flat) */}
+            <div className="absolute top-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+            <div className="absolute bottom-0 right-0 w-80 h-80 bg-black/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3 pointer-events-none"></div>
+
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
                 
+                {/* Header Section */}
+                <div
+                    className={`text-center max-w-2xl mx-auto mb-10 sm:mb-16 scroll-fade-up ${sectionAnim.isVisible ? 'scroll-visible' : 'scroll-hidden'}`}
+                >
+                    <h2 className="mt-2 font-chewy text-4xl sm:text-5xl md:text-6xl text-white underline decoration-cafe-yellow/50 decoration-3 underline-offset-4 drop-shadow-sm">
+                        Promo <span className='text-cafe-yellow'>Spesial</span>
+                    </h2>
+                    <p className="mt-3 sm:mt-4 font-poppins text-base sm:text-lg text-white/90 tracking-wide font-light">
+                        Jangan lewatkan penawaran menarik dari Nugas Cafe!
+                    </p>
+                </div>
+
                 <div
                     ref={sectionAnim.ref}
                     className={`relative max-w-4xl mx-auto px-2 sm:px-12 custom-promo-swiper scroll-scale-in ${sectionAnim.isVisible ? 'scroll-visible' : 'scroll-hidden'}`}
@@ -58,7 +72,7 @@ export default function Promo() {
                         }}
                         className="rounded-2xl sm:rounded-[2rem] shadow-lg border border-gray-200/40"
                     >
-                        {promoPosters.map(poster => (
+                        {promos.map(poster => (
                             <SwiperSlide key={poster.id}>
                                 {/* 
                                     Rasio tetap 16:9 di SEMUA breakpoint 
@@ -66,7 +80,7 @@ export default function Promo() {
                                 */}
                                 <div className="relative w-full aspect-[16/9] overflow-hidden bg-gray-100 rounded-2xl sm:rounded-[2rem]">
                                     <img 
-                                        src={poster.image} 
+                                        src={getImageUrl(poster.image)} 
                                         alt={poster.title}
                                         className="w-full h-full object-cover select-none pointer-events-none"
                                     />
@@ -78,7 +92,7 @@ export default function Promo() {
                     {/* Tombol Navigasi Panah Kiri */}
                     <button
                         onClick={() => swiperRef.current?.slidePrev()}
-                        className="absolute -left-1 sm:left-0 top-1/2 -translate-y-1/2 z-20 h-9 w-9 sm:h-11 sm:w-11 flex items-center justify-center rounded-full bg-secondary/60 text-white hover:bg-[#BCA47E] active:scale-95 transition-all shadow-md"
+                        className="absolute -left-1 sm:left-0 top-1/2 -translate-y-1/2 z-20 h-9 w-9 sm:h-11 sm:w-11 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white border border-white/20 hover:bg-cafe-yellow hover:text-cafe-secondary hover:border-cafe-yellow active:scale-95 transition-all shadow-lg"
                         aria-label="Previous Slide"
                     >
                         <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 stroke-[3]" />
@@ -87,7 +101,7 @@ export default function Promo() {
                     {/* Tombol Navigasi Panah Kanan */}
                     <button
                         onClick={() => swiperRef.current?.slideNext()}
-                        className="absolute -right-1 sm:right-0 top-1/2 -translate-y-1/2 z-20 h-9 w-9 sm:h-11 sm:w-11 flex items-center justify-center rounded-full bg-secondary/60 text-white hover:bg-[#BCA47E] active:scale-95 transition-all shadow-md"
+                        className="absolute -right-1 sm:right-0 top-1/2 -translate-y-1/2 z-20 h-9 w-9 sm:h-11 sm:w-11 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white border border-white/20 hover:bg-cafe-yellow hover:text-cafe-secondary hover:border-cafe-yellow active:scale-95 transition-all shadow-lg"
                         aria-label="Next Slide"
                     >
                         <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 stroke-[3]" />
@@ -104,15 +118,16 @@ export default function Promo() {
                 .custom-promo-pagination .swiper-pagination-bullet {
                     width: 8px;
                     height: 8px;
-                    background-color: secondary !important;
-                    opacity: 0.5;
+                    background-color: #ffffff !important;
+                    opacity: 0.4;
                     transition: all 0.3s ease;
                     border-radius: 9999px;
                 }
                 .custom-promo-pagination .swiper-pagination-bullet-active {
-                    width: 20px !important;
-                    background-color: #D94343 !important;
+                    width: 24px !important;
+                    background-color: var(--color-cafe-yellow, #FBD380) !important;
                     opacity: 1 !important;
+                    box-shadow: 0 0 10px rgba(251, 211, 128, 0.4);
                 }
             `}
             </style>

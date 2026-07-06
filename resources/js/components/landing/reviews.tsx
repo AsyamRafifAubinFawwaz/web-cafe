@@ -19,7 +19,7 @@ export default function Reviews() {
     }, []);
 
     return (
-        <section id="reviews" className="bg-[#FFF9F4] py-12 sm:py-16 md:py-24 overflow-hidden">
+        <section id="reviews" className="bg-cafe-bg py-12 sm:py-16 md:py-24 overflow-hidden">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
                 
                 <div
