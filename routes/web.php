@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\TableOrdersController;
 use App\Http\Controllers\Admin\TableOrderItemsController;
 use App\Http\Controllers\Admin\TablesController;
 use App\Http\Controllers\GuestOrderController;
+use App\Http\Controllers\GuestReservationController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Categories;
 use App\Models\Menus;
@@ -70,6 +71,8 @@ Route::get('/', function () {
 
 Route::get('/guest/menu', [GuestOrderController::class, 'index'])->name('guest.menu.index');
 Route::post('/guest/menu', [GuestOrderController::class, 'store'])->name('guest.menu.store');
+
+Route::get('/reservations/book', [GuestReservationController::class, 'index'])->name('guest.reservations.book');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
